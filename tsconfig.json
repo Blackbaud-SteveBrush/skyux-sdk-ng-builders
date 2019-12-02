@@ -8,7 +8,7 @@
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "skipDefaultLibCheck": true,
