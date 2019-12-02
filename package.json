@@ -1,0 +1,17 @@
+{
+  "name": "@skyux-sdk/ng-builders",
+  "builders": "builders.json",
+  "scripts": {
+    "build": "rimraf dist && node ./node_modules/.bin/tsc -p tsconfig.json && node ./scripts/prepare-package.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@angular-devkit/architect": "0.803.20",
+    "@angular-devkit/core": "8.3.20",
+    "@types/jasmine": "3.5.0",
+    "@types/node": "12.12.14",
+    "fs-extra": "8.1.0",
+    "rimraf": "3.0.0",
+    "typescript": "3.7.2"
+  }
+}

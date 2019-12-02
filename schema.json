@@ -1,0 +1,12 @@
+{
+  "id": "SampleBuilderSchema",
+  "title": "Sample builder",
+  "description": "Builder options.",
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "A message to pass to the console.",
+      "default": "Hello, World!"
+    }
+  }
+}
