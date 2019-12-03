@@ -7,13 +7,22 @@ import { from, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Configuration } from 'webpack';
 import { smartStrategy } from 'webpack-merge';
+import { browser } from '../utils/browser';
 
 function WebpackPluginDone(): void {
   let launched = false;
   this.plugin('done', (stats: any) => {
     if (!launched) {
       launched = true;
-      console.log('STATS!', stats);
+      const argv = {};
+      const skyPagesConfig = {
+        skyux: {
+          host: {
+            url: 'https://host.nxt.blackbaud.com'
+          }
+        }
+      };
+      browser(argv, skyPagesConfig, stats, 4242);
     }
   });
 }
@@ -33,16 +42,19 @@ type TransformFactory = (options: any, context: BuilderContext) => ExecutionTran
 
 export const customWebpackConfigTransformFactory: TransformFactory = (options: any, context: BuilderContext) => {
   return (browserWebpackConfig) => {
+
     console.log('EH?', options, context.workspaceRoot, browserWebpackConfig);
+
     return smartStrategy({})(browserWebpackConfig, {
       plugins: [
         WebpackPluginDone
       ]
     });
+
   };
 };
 
-export function sampleBuilder(
+export function devServerBuilder(
   options: DevServerBuilderOptions,
   context: BuilderContext
 ): Observable<DevServerBuilderOutput> {
@@ -71,4 +83,4 @@ export function sampleBuilder(
   // });
 }
 
-export default createBuilder<DevServerBuilderOptions, DevServerBuilderOutput>(sampleBuilder);
+export default createBuilder<DevServerBuilderOptions, DevServerBuilderOutput>(devServerBuilder);

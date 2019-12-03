@@ -7,7 +7,7 @@ function copyFilesToDist() {
     ['CHANGELOG.md'],
     ['package.json'],
     ['builders.json'],
-    ['schema.json']
+    ['dev-server', 'schema.json']
   ];
 
   pathsToCopy.forEach(pathArr => {
