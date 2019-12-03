@@ -1,86 +1,94 @@
 import { BuilderContext, createBuilder, targetFromTargetString } from '@angular-devkit/architect';
-import { ExecutionTransformer } from '@angular-devkit/build-angular';
-import {
-  executeDevServerBuilder, DevServerBuilderOutput, DevServerBuilderOptions
-} from '@angular-devkit/build-angular';
-import { from, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { Configuration } from 'webpack';
-import { smartStrategy } from 'webpack-merge';
-import { browser } from '../utils/browser';
+import { ExecutionTransformer, executeDevServerBuilder, DevServerBuilderOutput, DevServerBuilderOptions } from '@angular-devkit/build-angular';
 
-function WebpackPluginDone(): void {
-  let launched = false;
-  this.plugin('done', (stats: any) => {
-    if (!launched) {
-      launched = true;
-      const argv = {};
-      const skyPagesConfig = {
-        skyux: {
-          host: {
-            url: 'https://host.nxt.blackbaud.com'
-          }
-        }
-      };
-      browser(argv, skyPagesConfig, stats, 4242);
-    }
-  });
+import { Configuration as WebpackConfiguration } from 'webpack';
+import { smartStrategy } from 'webpack-merge';
+import { MergeStrategy } from 'webpack-merge';
+
+import { getSystemPath, normalize, JsonObject } from '@angular-devkit/core';
+import { IndexHtmlTransform } from '@angular-devkit/build-angular/src/angular-cli-files/utilities/index-file/write-index-html';
+import { WebpackLoggingCallback } from '@angular-devkit/build-webpack';
+
+import { SkyWebpackPluginDone } from '../utils/webpack-plugin-done';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+
+export type SkyWebpackConfigTransformFactory = (options: SkyDevServerBuilderOptions, context: BuilderContext) => ExecutionTransformer<WebpackConfiguration>;
+export type SkyIndexHtmlTransformFactory = (options: SkyDevServerBuilderOptions, context: BuilderContext) => IndexHtmlTransform;
+
+export type SkyMergeStrategies = { [field: string]: MergeStrategy };
+
+export interface SkyDevServerBuilderTransforms {
+  webpackConfiguration?: ExecutionTransformer<WebpackConfiguration>;
+  logging?: WebpackLoggingCallback;
+  indexHtml?: IndexHtmlTransform | undefined;
 }
 
-// export const customWebpackConfigTransformFactory: (options: any, context: BuilderContext) => ExecutionTransformer<any> = (options: any, context: BuilderContext) => (browserWebpackConfig) => {
-//   console.log('EH?', options, context.workspaceRoot, browserWebpackConfig);
-//   return {};
-// };
+export interface SkyCustomWebpackBuilderConfig {
+  path?: string;
+  mergeStrategies?: SkyMergeStrategies;
+  replaceDuplicatePlugins?: boolean;
+}
 
-// function customWebpackConfigTransformFactory(options: any, context: BuilderContext): (options: any, context: BuilderContext) => ExecutionTransformer<any> {
-//   return (browserWebpackConfig) => {
-//     return {};
-//   }
-// }
+export interface SkyDevServerBuilderOptions extends JsonObject {
+}
 
-type TransformFactory = (options: any, context: BuilderContext) => ExecutionTransformer<Configuration>;
+export const webpackConfigTransformFactory: SkyWebpackConfigTransformFactory = (options: SkyDevServerBuilderOptions, context: BuilderContext) => {
+  return (defaultWebpackConfig) => {
 
-export const customWebpackConfigTransformFactory: TransformFactory = (options: any, context: BuilderContext) => {
-  return (browserWebpackConfig) => {
-
-    console.log('EH?', options, context.workspaceRoot, browserWebpackConfig);
-
-    return smartStrategy({})(browserWebpackConfig, {
+    const merged = smartStrategy({})(defaultWebpackConfig, {
       plugins: [
-        WebpackPluginDone
+        new SkyWebpackPluginDone()
       ]
     });
 
+    console.log('OPTIONS: ', options);
+    console.log('Workspace root:', context.workspaceRoot);
+    console.log('Merged config:', merged);
+
+    return merged;
+
   };
 };
+
+export function indexHtmlTransformFactory(options: SkyDevServerBuilderOptions, context: BuilderContext): IndexHtmlTransform | undefined {
+  if (!options.indexTransform) {
+    return;
+  }
+
+  const transform = require(`${getSystemPath(normalize(context.workspaceRoot))}/${options.indexTransform}`);
+  return async (indexHtml: string) => transform(context.target, indexHtml);
+}
+
+export function getTransforms(options: SkyDevServerBuilderOptions, context: BuilderContext): SkyDevServerBuilderTransforms {
+  return {
+    webpackConfiguration: webpackConfigTransformFactory(options, context),
+    indexHtml: indexHtmlTransformFactory(options, context)
+  };
+}
 
 export function devServerBuilder(
   options: DevServerBuilderOptions,
   context: BuilderContext
 ): Observable<DevServerBuilderOutput> {
 
-  async function setup() {
+  async function setup(): Promise<JsonObject> {
     const browserTarget = targetFromTargetString(options.browserTarget);
-    return (context.getTargetOptions(browserTarget) as unknown) as any;
+    return (context.getTargetOptions(browserTarget) as unknown) as JsonObject;
   }
 
   return from(setup()).pipe(
-    switchMap(customWebpackOptions => {
-      console.log('webpack options:', customWebpackOptions);
-      const webpackConfiguration = customWebpackConfigTransformFactory(options, context);
+    switchMap(targetOptions => {
+      context.logger.info(`Running from workspace root: ${getSystemPath(normalize(context.workspaceRoot))}`);
 
-      return executeDevServerBuilder(options, context, {
-        webpackConfiguration
-      });
+      options.host = 'localhost';
+      options.publicHost = 'localhost';
+      options.port = 8080;
+      options.open = true;
+
+      return executeDevServerBuilder(options, context, getTransforms(targetOptions, context));
     })
   );
-
-  // context.logger.info('Running from workspace root: ' + getSystemPath(normalize(context.workspaceRoot)));
-
-  // return new Promise<BuilderOutput>(resolve => {
-  //   context.logger.info(options.message);
-  //   resolve({ success: true });
-  // });
 }
 
 export default createBuilder<DevServerBuilderOptions, DevServerBuilderOutput>(devServerBuilder);
