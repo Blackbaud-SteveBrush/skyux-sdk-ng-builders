@@ -1,12 +1,12 @@
-/*jslint node: true */
-'use strict';
-
 const util = require('util');
+
+import {
+  SkyBuilderOptions
+} from '../builder-options';
 
 import {
   hostUtils
 } from './host-utils';
-import { SkyBuilderOptions } from '../builder-options';
 
 // function getQueryStringFromArgv(argv: any, options: SkyBuilderOptions) {
 

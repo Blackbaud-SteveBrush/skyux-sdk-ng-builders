@@ -1,7 +1,13 @@
-import { SkyBrowser } from './browser';
-import * as webpack from 'webpack';
-import { SkyBuilderOptions } from '../builder-options';
 import * as open from 'open';
+import * as webpack from 'webpack';
+
+import {
+  SkyBuilderOptions
+} from '../builder-options';
+
+import {
+  SkyBrowser
+} from './browser';
 
 export class SkyWebpackPluginDone {
 
@@ -13,6 +19,7 @@ export class SkyWebpackPluginDone {
     let launched = false;
 
     compiler.hooks.done.tap('SkyWebpackPluginDone', (stats) => {
+
       if (launched) {
         return;
       }

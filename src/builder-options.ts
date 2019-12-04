@@ -1,4 +1,7 @@
-import { JsonObject, JsonValue } from '@angular-devkit/core';
+import {
+  JsonObject,
+  JsonValue
+} from '@angular-devkit/core';
 
 export interface SkyBuilderOptions extends JsonObject {
   skyux: {
