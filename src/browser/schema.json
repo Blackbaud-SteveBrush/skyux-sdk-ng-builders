@@ -1,0 +1,37 @@
+{
+  "id": "SkyBrowserBuilderSchema",
+  "title": "SKY UX browser builder",
+  "description": "Builder options.",
+  "properties": {
+    "skyux": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the project when running in SKY UX Host."
+        },
+        "params": {
+          "type": ["object"],
+          "description": "Specifies a list of parameters that are allowed at runtime.",
+          "properties": {
+            "required": {
+              "description": "Indicates the parameter must be supplied to the application in order to function.",
+              "type": "boolean"
+            },
+            "value": {
+              "description": "The default value of the parameter. This value may be overridden at runtime by the query string or other future sources of parameter values."
+            },
+            "excludeFromRequests": {
+              "description": "Indicates whether the parameter should be excluded from the parameters automatically added to the query string of URLs requested with SkyAuthHttp.",
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+  }
+}

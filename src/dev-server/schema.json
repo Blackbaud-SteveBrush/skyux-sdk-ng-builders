@@ -1,12 +1,6 @@
 {
-  "id": "SampleBuilderSchema",
-  "title": "Sample builder",
+  "id": "SkyDevServerBuilderSchema",
+  "title": "SKY UX dev-server builder",
   "description": "Builder options.",
-  "properties": {
-    "message": {
-      "type": "string",
-      "description": "A message to pass to the console.",
-      "default": "Hello, World!"
-    }
-  }
+  "properties": {}
 }

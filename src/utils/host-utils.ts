@@ -1,3 +1,7 @@
+import {
+  SkyBuilderOptions
+} from '../builder-options';
+
 const sorter = require('html-webpack-plugin/lib/chunksorter');
 
 function getScripts(chunks: any): any[] {
@@ -21,16 +25,16 @@ function getScripts(chunks: any): any[] {
 }
 
 export const hostUtils = {
-  resolve: (url: string, localUrl: string, chunks: any, skyPagesConfig: any): string => {
+  resolve: (url: string, localUrl: string, chunks: any, options: SkyBuilderOptions): string => {
 
-    let host = skyPagesConfig.skyux.host.url;
+    let host = options.skyux.host.url;
     let config: any = {
       scripts: getScripts(chunks),
-      localUrl: localUrl
+      localUrl
     };
 
-    if (skyPagesConfig.skyux.app && skyPagesConfig.skyux.app.externals) {
-      config.externals = skyPagesConfig.skyux.app.externals;
+    if (options.skyux.app && options.skyux.app.externals) {
+      config.externals = options.skyux.app.externals;
     }
 
     // Trim leading slash since getAppBase adds it
@@ -45,7 +49,7 @@ export const hostUtils = {
 
     const delimeter = url.indexOf('?') === -1 ? '?' : '&';
     const encoded = Buffer.from(JSON.stringify(config)).toString('base64');
-    const base = '/skyux-spa/'; // TODO: pull this from config!
+    const base = options.baseHref;
     const resolved = `${host}${base}${url}${delimeter}local=true&_cfg=${encoded}`;
 
     return resolved;

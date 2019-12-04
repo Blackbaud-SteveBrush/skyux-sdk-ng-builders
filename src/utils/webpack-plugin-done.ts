@@ -1,66 +1,35 @@
 import { SkyBrowser } from './browser';
 import * as webpack from 'webpack';
-const open = require('open');
+import { SkyBuilderOptions } from '../builder-options';
+import * as open from 'open';
 
 export class SkyWebpackPluginDone {
+
+  constructor(
+    private options: SkyBuilderOptions
+  ) { }
+
   public apply(compiler: webpack.Compiler): void {
+    let launched = false;
+
     compiler.hooks.done.tap('SkyWebpackPluginDone', (stats) => {
+      if (launched) {
+        return;
+      }
 
-      const argv = {
-        _: [ 'serve' ],
-        sslCert: '/Users/stevebr/.skyux/certs/skyux-server.crt',
-        sslKey: '/Users/stevebr/.skyux/certs/skyux-server.key'
-      };
+      console.log('Options in plugin:', this.options);
 
-      const skyPagesConfig = {
-        runtime: {
-          app: {
-            inject: false,
-            template: '/Users/stevebr/Projects/github/blackbaud/skyux-sdk-template/node_modules/@skyux-sdk/builder/src/main.ejs',
-            base: '/skyux-spa/',
-            name: 'skyux-spa'
-          },
-          command: 'serve',
-          componentsPattern: '**/*.component.ts',
-          componentsIgnorePattern: './public/**/*',
-          includeRouteModule: true,
-          routesPattern: '**/index.html',
-          runtimeAlias: 'sky-pages-internal/runtime',
-          srcPath: 'src/app/',
-          spaPathAlias: 'sky-pages-spa',
-          skyPagesOutAlias: 'sky-pages-internal',
-          useTemplateUrl: false,
-          handle404: true,
-          routes: []
-        },
-        skyux: {
-          '$schema': './node_modules/@skyux/config/skyuxconfig-schema.json',
-          mode: 'easy',
-          host: {
-            url: 'https://host.nxt.blackbaud.com'
-          },
-          app: {
-            title: 'Blackbaud - SKY UX Application'
-          },
-          compileMode: 'aot',
-          params: {
-            addin: true,
-            envid: true,
-            leid: true,
-            svcid: true
-          },
-          help: {
-            extends: 'bbhelp'
-          }
-        }
-      };
+      const url = SkyBrowser.getLaunchUrl(this.options, stats);
 
-      const url = SkyBrowser.getLaunchUrl(argv, skyPagesConfig, stats, 8080);
+      console.info(`Launching host URL: ${url}`);
 
+      // Launch the URL.
       open(url, {
         app: 'google chrome',
         url: true
       });
+
+      launched = true;
     });
   }
 }
