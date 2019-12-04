@@ -1,6 +1,6 @@
 const sorter = require('html-webpack-plugin/lib/chunksorter');
 
-function getScripts(chunks: any) {
+function getScripts(chunks: any): any[] {
   const scripts: any[] = [];
 
   // Used when skipping the build, short-circuit to return metadata
@@ -21,7 +21,7 @@ function getScripts(chunks: any) {
 }
 
 export const hostUtils = {
-  resolve: (url: string, localUrl: string, chunks: any, skyPagesConfig: any) => {
+  resolve: (url: string, localUrl: string, chunks: any, skyPagesConfig: any): string => {
 
     let host = skyPagesConfig.skyux.host.url;
     let config: any = {
@@ -45,7 +45,7 @@ export const hostUtils = {
 
     const delimeter = url.indexOf('?') === -1 ? '?' : '&';
     const encoded = Buffer.from(JSON.stringify(config)).toString('base64');
-    const base = 'skyux-spa'; // TODO: pull this from config!
+    const base = '/skyux-spa/'; // TODO: pull this from config!
     const resolved = `${host}${base}${url}${delimeter}local=true&_cfg=${encoded}`;
 
     return resolved;

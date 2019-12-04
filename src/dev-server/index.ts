@@ -10,6 +10,7 @@ import { IndexHtmlTransform } from '@angular-devkit/build-angular/src/angular-cl
 import { WebpackLoggingCallback } from '@angular-devkit/build-webpack';
 
 import { SkyWebpackPluginDone } from '../utils/webpack-plugin-done';
+// import { SkyBrowser } from './browser';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -83,8 +84,12 @@ export function devServerBuilder(
 
       options.host = 'localhost';
       options.publicHost = 'localhost';
+      options.baseHref = '/skyux-spa/';
       options.port = 8080;
       options.open = true;
+      options.ssl = true;
+      options.sslCert = '/Users/stevebr/.skyux/certs/skyux-server.crt';
+      options.sslKey = '/Users/stevebr/.skyux/certs/skyux-server.key';
 
       return executeDevServerBuilder(options, context, getTransforms(targetOptions, context));
     })

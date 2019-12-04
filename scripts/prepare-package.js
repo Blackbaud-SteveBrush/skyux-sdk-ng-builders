@@ -7,7 +7,7 @@ function copyFilesToDist() {
     ['CHANGELOG.md'],
     ['package.json'],
     ['builders.json'],
-    ['dev-server', 'schema.json']
+    ['src', 'dev-server', 'schema.json']
   ];
 
   pathsToCopy.forEach(pathArr => {
@@ -17,7 +17,7 @@ function copyFilesToDist() {
       fs.copySync(sourcePath, distPath);
       console.log(`Successfully copied ${sourcePath} to ${distPath}`);
     } else {
-      console.warn(`File not found: ${sourcePath}`);
+      throw `File not found: ${sourcePath}`;
     }
   });
 }
