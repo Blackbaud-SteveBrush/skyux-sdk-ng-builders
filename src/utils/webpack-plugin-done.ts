@@ -58,7 +58,7 @@ export class SkyWebpackPluginDone {
       const url = SkyBrowser.getLaunchUrl(argv, skyPagesConfig, stats, 8080);
 
       open(url, {
-        app: 'chrome',
+        app: 'google chrome',
         url: true
       });
     });

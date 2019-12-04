@@ -86,7 +86,7 @@ export function devServerBuilder(
       options.publicHost = 'localhost';
       options.baseHref = '/skyux-spa/';
       options.port = 8080;
-      options.open = true;
+      options.open = false;
       options.ssl = true;
       options.sslCert = '/Users/stevebr/.skyux/certs/skyux-server.crt';
       options.sslKey = '/Users/stevebr/.skyux/certs/skyux-server.key';
